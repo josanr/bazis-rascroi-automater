@@ -1,0 +1,26 @@
+{
+  "name": "bazis-rascroi-maps-parser",
+  "version": "0.1.0",
+  "description": "Модуль для для автоматизации работы с Базис Раскрой",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/josanr/bazis-rascroi-automater.git"
+  },
+  "keywords": [
+    "BazisSoft",
+    "Базис-Раскрой"
+  ],
+  "author": "Ruslan Josan <josanr@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/josanr/bazis-rascroi-automater/issues"
+  },
+  "homepage": "https://github.com/josanr/bazis-rascroi-maps-automater#readme",
+  "dependencies": {
+    "iconv-lite": "^0.4.19"
+  }
+}
