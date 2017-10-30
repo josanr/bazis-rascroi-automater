@@ -248,3 +248,4 @@ BazisLink.prototype.parse = function(){
 
 };
 
+module.exports = BazisLink;
