@@ -5,33 +5,20 @@
 'use strict';
 
 
-let isNodeWebkit = (typeof process === "object");
-
-if(isNodeWebkit === false){
-    console.log('Данный раздел не работает в режиме Браузера.');
-    return {
-        init: function(){},
-        run: function(){},
-        parse: function(){
-            return {
-                goods: {},
-                meta: {},
-                stat: false
-            };
-        },
-
-        end: function(){}
-    }
-}
 let os = require('os');
 let fs = require('fs');
 let spawn = require('child_process');
 let iconv = require('iconv-lite');
 let appPath = null;
 
-(os.arch() == 'x64') ? appPath = process.env['ProgramFiles(x86)'] : appPath = process.env.PROGRAMFILES;
+(os.arch() === 'x64') ? appPath = process.env['ProgramFiles(x86)'] : appPath = process.env.PROGRAMFILES;
 
 let BazisLink = function (settings) {
+    let isNode = (typeof window === "undefined");
+
+    if(isNode === false){
+        throw new Error('Данный раздел не работает в режиме Браузера.');
+    }
     this.path = settings || "d:/bazis";
     this.mainConfig = new Buffer(settings.mainConfig, 'base64').toString('utf8');
     this.rascroiConfig = new Buffer(settings.rascroiConfig, 'base64').toString('utf8');
@@ -105,7 +92,7 @@ BazisLink.prototype.run = function (msg) {
 
 BazisLink.prototype.watchFile = function(callback){
     this.watch = fs.watch(this.path + 'PartnerSoft.dat', function (event, filename) {
-        if (event == 'change') {
+        if (event === 'change') {
             console.log('Partner soft changed');
             let parsed = this.parse();
             if(typeof callback === 'function'){
@@ -149,10 +136,10 @@ BazisLink.prototype.parse = function(){
         buffer = iconv.decode(buffer, 'win1251');
         content = buffer;
     } catch (e) {
-        Core.Alert('Ошибка чтения дянных из базиса.');
+        console.log('Ошибка чтения дянных из базиса.');
         return ret;
     }
-    if (content.length == 0) {
+    if (content.length === 0) {
         console.log('Пустой ответ от Базис-Раскроя');
         return ret;
     }
@@ -165,7 +152,7 @@ BazisLink.prototype.parse = function(){
     try {
         //find position of every block of data
         for (let x = 0; x < lines.length; x++) {
-            if (lines[x].substr(0, 6) == 'Заказ=') {
+            if (lines[x].substr(0, 6) === 'Заказ=') {
                 pos.push(x);
             }
         }
@@ -178,12 +165,11 @@ BazisLink.prototype.parse = function(){
             let totNumCuts = 0;
             let totCutLength = 0;
             let totNumSheets = 0;
-            let totNumOffcutsTo = 0;
 
             for (let x = pos[y]; x < pos[y + 1]; x++) {
 
                 //if line nit deffinition of map then continue находим начало описания карты
-                if (lines[x].substr(0, 6) != 'Карта=') {
+                if (lines[x].substr(0, 6) !== 'Карта=') {
                     continue;
                 }
                 let ln = lines[x];
@@ -191,14 +177,14 @@ BazisLink.prototype.parse = function(){
                 let mapId = (+ln.substr(6, ln.length)) - 1;		//id карты отсчёт идёт с нуля
 
                 if(isNaN(mapId)){
-                    Core.Alert('Error reading map ordinal number');
+                    console.log('Error reading map ordinal number');
                     return ret;
                 }
 
                 id = +lines[x + 1].substr(9).split(' ')[0]; //получаем id материала карты
 
                 if(isNaN(id)){
-                    Core.Alert('Error reading good id');
+                    console.log('Error reading good id');
                     return ret;
                 }
                 maps[mapId] = {};												//создаём объект карты
@@ -218,11 +204,11 @@ BazisLink.prototype.parse = function(){
 
                 for (let i = x; i < pos[y + 1]; i++) {
 
-                    if (lines[i].charAt(0) == String.fromCharCode(13) || lines[i] == '') {
+                    if (lines[i].charAt(0) === String.fromCharCode(13) || lines[i] === '') {
                         break;
                     }
 
-                    if (lines[i].charAt(0) != String.fromCharCode(13) || lines[i] != '') {
+                    if (lines[i].charAt(0) !== String.fromCharCode(13) || lines[i] !== '') {
                         let piece = lines[i].split("\t");
                         maps[mapId].cuts.push({
                             id : piece[0],
@@ -237,7 +223,7 @@ BazisLink.prototype.parse = function(){
                 }
                 x++;
             }
-            if(id == 0){
+            if(id === 0){
                 continue;
             }
             goods[id] = maps;
@@ -250,8 +236,7 @@ BazisLink.prototype.parse = function(){
         }
 
     }catch (e){
-        Core.Alert('Произошла непредвиденная ошибка при разборе ответа от Базис-а: ' + e);
-        console.log(e);
+        console.log('Произошла непредвиденная ошибка при разборе ответа от Базис-а: ' + e);
         return ret;
     }
 
